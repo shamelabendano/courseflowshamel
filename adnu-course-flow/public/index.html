@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ADNU Course Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="brand-mark">AdNU</span>
+      <h1>Course Flow</h1>
+    </div>
+    <nav id="courseList" class="course-list">
+      <div class="loading-hint">Loading courses…</div>
+    </nav>
+    <button id="addCourseBtn" class="add-btn">+ Add a course</button>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main">
+    <header class="main-header">
+      <div>
+        <h2 id="courseTitle">Select a course</h2>
+        <p id="courseSubtitle" class="muted">Choose a course from the sidebar to view its curriculum.</p>
+      </div>
+      <button id="addSubjectBtn" class="ghost-btn" hidden>+ Add subject</button>
+    </header>
+
+    <!-- View toggle (hidden until a course is selected) -->
+    <div id="viewToggle" class="view-toggle" hidden>
+      <button class="view-btn active" data-view="year"     onclick="switchView('year')">Year View</button>
+      <button class="view-btn"        data-view="overview" onclick="switchView('overview')">Full Overview</button>
+    </div>
+
+    <!-- Year View -->
+    <div id="yearView">
+      <div id="yearTabs" class="year-tabs" hidden></div>
+      <div class="flow-grid-wrapper">
+        <svg id="arrowLayer" class="arrow-layer"></svg>
+        <div id="flowGrid" class="flow-grid"></div>
+      </div>
+    </div>
+
+    <!-- Full Overview (all years side-by-side) -->
+    <div id="overviewView" hidden>
+      <div class="overview-wrapper" id="overviewWrapper">
+        <svg id="overviewArrowSvg" class="overview-arrow-svg"></svg>
+        <div id="overviewGrid" class="overview-grid"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── Subject detail panel ── -->
+  <aside id="detailPanel" class="detail-panel" hidden>
+    <button id="deleteSubjectBtn" class="delete-btn" aria-label="Delete subject">Delete subject</button>
+    <button id="closeDetail" class="close-btn" aria-label="Close">&times;</button>
+    <div id="detailContent"></div>
+  </aside>
+
+</div>
+
+<!-- ── Add Course modal ── -->
+<div id="courseModal" class="modal-overlay" hidden>
+  <div class="modal">
+    <h3>Add a new course</h3>
+
+    <label>Course name
+      <input id="courseName" type="text" placeholder="e.g. Computer Science" />
+    </label>
+    <label>Course code
+      <input id="courseCode" type="text" placeholder="e.g. BSCS" />
+    </label>
+    <label>Accent colour
+      <input id="courseColor" type="color" value="#1c3f73" />
+    </label>
+
+    <p class="form-error" id="courseErr"></p>
+    <div class="modal-actions">
+      <button class="ghost-btn" data-close="courseModal">Cancel</button>
+      <button id="saveCourseBtn" class="primary-btn">Add Course</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add Subject modal ── -->
+<div id="subjectModal" class="modal-overlay" hidden>
+  <div class="modal modal-wide">
+    <h3>Add a subject</h3>
+
+    <div class="row-2">
+      <label>Year
+        <select id="subjectYear">
+          <option value="1">First Year</option>
+          <option value="2">Second Year</option>
+          <option value="3">Third Year</option>
+          <option value="4">Fourth Year</option>
+        </select>
+      </label>
+      <label>Semester
+        <select id="subjectSemester">
+          <option value="1">First Semester</option>
+          <option value="2">Second Semester</option>
+          <option value="3">Summer</option>
+        </select>
+      </label>
+    </div>
+
+    <label>Subject code
+      <input id="subjectCode" type="text" placeholder="e.g. IT 301" />
+    </label>
+    <label>Subject name
+      <input id="subjectName" type="text" placeholder="e.g. Web Systems and Technologies" />
+    </label>
+
+    <div class="row-2">
+      <label>Units
+        <input id="subjectUnits" type="number" value="3" min="1" max="6" />
+      </label>
+      <label>Category
+        <select id="subjectCategory">
+          <option value="core">Core</option>
+          <option value="major">Major</option>
+          <option value="elective">Elective</option>
+          <option value="gen ed">Gen Ed</option>
+          <option value="Non-Credit">Non-Credit</option>
+        </select>
+      </label>
+    </div>
+
+    <label>Instructor
+      <input id="subjectInstructor" type="text" placeholder="e.g. Prof. Dela Cruz" />
+    </label>
+
+    <label>Prerequisite subject codes <span class="hint">(comma-separated, must be exact codes already saved)</span>
+      <input id="subjectPrereqs" type="text" placeholder="e.g. IT 101, IT 102" />
+    </label>
+
+    <label>Description
+      <textarea id="subjectDesc" rows="3" placeholder="Brief description…"></textarea>
+    </label>
+
+    <p class="form-error" id="subjectErr"></p>
+    <div class="modal-actions">
+      <button class="ghost-btn" data-close="subjectModal">Cancel</button>
+      <button id="saveSubjectBtn" class="primary-btn">Add Subject</button>
+    </div>
+  </div>
+</div>
+
+<!--
+  JS files are split by responsibility.
+  They must be loaded in this exact order because each file uses
+  functions and variables defined in the files above it.
+-->
+<script src="js/state.js"></script>    <!-- shared app state + label constants -->
+<script src="js/helpers.js"></script>  <!-- getEl(), setLoading(), findSubjectById() -->
+<script src="js/courses.js"></script>  <!-- sidebar, selectCourse(), deleteCourse() -->
+<script src="js/grid.js"></script>     <!-- year tabs, subject grid, SVG arrows -->
+<script src="js/overview.js"></script> <!-- full overview mode + overview arrows -->
+<script src="js/detail.js"></script>   <!-- subject detail panel + deleteSubject() -->
+<script src="js/modals.js"></script>   <!-- modal open/close, Add Course form, Add Subject form -->
+<script src="js/main.js"></script>     <!-- app boot — wires everything together on DOMContentLoaded -->
+</body>
+</html>
